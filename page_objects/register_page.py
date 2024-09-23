@@ -1,4 +1,6 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 class RegisterPage:
@@ -60,10 +62,17 @@ class RegisterPage:
         return self.driver.find_element(By.XPATH, self.conf_pass_label_xpath).text
 
     def get_name_error_msg(self):
-        return self.get_name_input().get_attribute("validationMessage")
+        message = WebDriverWait(self.driver, 10).until(
+            EC.visibility_of_element_located((By.ID, self.name_input_id))).get_attribute("validationMessage")
+        return message
+
+    def get_name_validation_msg(self):
+        pass
 
     def get_email_error_msg(self):
-        return self.get_email_input().get_attribute("validationMessage")
+        message = WebDriverWait(self.driver, 10).until(
+            EC.visibility_of_element_located((By.ID, self.email_input_id))).get_attribute("validationMessage")
+        return message
 
     def register(self, name, email, password, conf_password):
         self.set_name(name)
@@ -71,4 +80,3 @@ class RegisterPage:
         self.set_password(password)
         self.set_conf_password(conf_password)
         self.click_register_btn()
-
