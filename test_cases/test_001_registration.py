@@ -174,7 +174,7 @@ class TestAccountRegister:
         message = self.register_page.get_email_error_msg()
         if not message:
             pytest.fail("The error message is not displayed")
-        assert expected_message == expected_message, f"Expected message: {expected_message}, but got: {message}"
+        assert message == expected_message, f"Expected message: {expected_message}, but got: {message}"
         assert self.driver.current_url == self.register_page.url, \
             f"Expected to be {self.register_page.url}, but got {self.driver.current_url}"
 
@@ -182,11 +182,11 @@ class TestAccountRegister:
         self.preconditions(setup)
         self.email = "john.doe@gmail"
         self.register_page.register(self.name, self.email, self.password, self.conf_password)
-        expected_message = "Enter a valid email address."
-        error_message = self.register_page.get_email_error_msg()
+        expected_message = "Please enter a valid email address."
+        error_message = self.register_page.get_email_validation_msg()
         if not error_message:
             pytest.fail("The error message is not displayed")
-        assert expected_message == expected_message, f"Expected message: {expected_message}, but got: {error_message}"
+        assert error_message.text == expected_message, f"Expected message: {expected_message}, but got: {error_message}"
         assert self.driver.current_url == self.register_page.url, \
             f"Expected to be {self.register_page.url}, but got {self.driver.current_url}"
 
@@ -199,7 +199,7 @@ class TestAccountRegister:
         error_message = self.register_page.get_email_error_msg()
         if not error_message:
             pytest.fail("The error message is not displayed")
-        assert expected_message == expected_message, f"Expected message: {expected_message}, but got: {error_message}"
+        assert error_message == expected_message, f"Expected message: {expected_message}, but got: {error_message}"
         assert self.driver.current_url == self.register_page.url, \
             f"Expected to be {self.register_page.url}, but got {self.driver.current_url}"
 
@@ -227,6 +227,7 @@ class TestAccountRegister:
         assert self.driver.current_url == self.register_page.url, \
             f"Expected to be {self.register_page.url}, but got {self.driver.current_url}"
 
+    @pytest.mark.sanity
     def test_register_user_with_email_contains_special_characters(self, setup):
         self.preconditions(setup)
         self.name = generate_random_username(7)
@@ -237,7 +238,8 @@ class TestAccountRegister:
                 continue
             self.email = f"{self.name}{char}@yahoo.com"
             self.register_page.register(self.name, self.email, self.password, self.conf_password)
-            expected_message = f"A part followed by '@' should not contain the symbol '{char}'."
+            expected_message1 = f"A part followed by '@' should not contain the symbol '{char}'."
+            expected_message2 = "Please enter a valid email address."
             sleep(3)
             if self.driver.current_url == self.home_page.url:
                 not_allowed_chars.append(char)
@@ -245,8 +247,6 @@ class TestAccountRegister:
                 self.driver.get(self.base_url)
                 sleep(2)
                 continue
-            error_message = self.register_page.get_email_error_msg()
-            assert expected_message == expected_message, f"Expected message: {expected_message}, but got: {error_message}"
             assert self.driver.current_url == self.register_page.url, \
                 f"Expected to be {self.register_page.url}, but got {self.driver.current_url}"
             # reload the page

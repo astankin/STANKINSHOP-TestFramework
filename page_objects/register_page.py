@@ -18,6 +18,7 @@ class RegisterPage:
     register_btn_xpath = '//*[@id="root"]/main/div/div/div/div/form/button'
     sign_in_xpath = '//*[@id="root"]/main/div/div/div/div/div/div/a'
     password_validation_msg_xpath = "//*[@id='root']/main/div/div/div/div/form/div[3]/div[2]"
+    email_validation_msg_xpath = "//*[@id='root']/main/div/div/div/div/form/div[2]/div"
     existing_user_error_msg = '//*[@id="root"]/main/div/div/div/div/div[1]'
     password_not_match_msg = '//*[@id="root"]/main/div/div/div/div/form/div[4]/div[2]'
 
@@ -112,6 +113,11 @@ class RegisterPage:
             return message
         except NoSuchElementException as e:
             raise AssertionError(f"{e}")
+
+    def get_email_validation_msg(self):
+        return WebDriverWait(self.driver, 10).until(
+            EC.visibility_of_element_located((By.XPATH, self.email_validation_msg_xpath))
+        )
 
     def get_conf_pass_error_msg(self):
         try:
