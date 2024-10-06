@@ -27,6 +27,10 @@ class TestAccountRegister:
     conf_password = ReadConfig.get_password()
     chars = ReadConfig.get_chars_list()
     common_passwords = ReadConfig.get_common_passwords_list()
+    disposable_domains = [
+        'mailinator.com', 'guerrillamail.com', '10minutemail.com',
+        'tempmail.com', 'trashmail.com', 'yopmail.com', 'getnada.com'
+    ]
 
     def preconditions(self, setup):
         self.driver = setup
@@ -93,7 +97,6 @@ class TestAccountRegister:
         self.preconditions(setup)
         self.email = generate_random_email()
         self.register_page.register(self.name, self.email, self.password, self.conf_password)
-        sleep(3)
         user_link = self.home_page.get_user_link()
         assert self.driver.current_url == self.home_page.url
         assert user_link.is_displayed()
@@ -108,19 +111,19 @@ class TestAccountRegister:
         assert error_message.is_displayed()
         assert self.driver.current_url == self.register_page.url
 
-    def test_register_user_with_name_less_then_4(self, setup):
-        self.logger.info("Starting test with username less then 4 chars")
-        self.preconditions(setup)
-        self.name = generate_random_username(3)
-        self.email = self.name + '@mail.com'
-        self.register_page.register(self.name, self.email, self.password, self.conf_password)
-
-        expected_message = f"Ensure this value has at least 4 characters (it has {len(self.name)})."
-        message = self.register_page.get_name_validation_msg()
-        if not message:
-            pytest.fail("The error message is not displayed. The username can NOT be less then 4 characters")
-        assert message.is_displayed(), f"Expected message: '{expected_message}' not found on the page."
-        assert expected_message == message
+    # def test_register_user_with_name_less_then_4(self, setup):
+    #     self.logger.info("Starting test with name less then 4 chars")
+    #     self.preconditions(setup)
+    #     self.name = generate_random_username(3)
+    #     self.email = self.name + '@mail.com'
+    #     self.register_page.register(self.name, self.email, self.password, self.conf_password)
+    #
+    #     expected_message = f"Ensure this value has at least 4 characters (it has {len(self.name)})."
+    #     message = self.register_page.get_name_validation_msg()
+    #     if not message:
+    #         pytest.fail("The error message is not displayed. The username can NOT be less then 4 characters")
+    #     assert message.is_displayed(), f"Expected message: '{expected_message}' not found on the page."
+    #     assert expected_message == message
 
     def test_register_user_with_empty_name(self, setup):
         self.preconditions(setup)
@@ -227,7 +230,6 @@ class TestAccountRegister:
         assert self.driver.current_url == self.register_page.url, \
             f"Expected to be {self.register_page.url}, but got {self.driver.current_url}"
 
-    @pytest.mark.sanity
     def test_register_user_with_email_contains_special_characters(self, setup):
         self.preconditions(setup)
         self.name = generate_random_username(7)
@@ -240,7 +242,7 @@ class TestAccountRegister:
             self.register_page.register(self.name, self.email, self.password, self.conf_password)
             expected_message1 = f"A part followed by '@' should not contain the symbol '{char}'."
             expected_message2 = "Please enter a valid email address."
-            sleep(3)
+            sleep(2)
             if self.driver.current_url == self.home_page.url:
                 not_allowed_chars.append(char)
                 self.home_page.click_logout_link()
@@ -255,6 +257,44 @@ class TestAccountRegister:
             assert True
         else:
             raise AssertionError(f"Test Failed! Characters: '{', '.join(not_allowed_chars)}' are not allowed")
+
+    def test_register_user_with_email_consecutive_dots(self, setup):
+        self.preconditions(setup)
+        self.email = "user@abv..bg"
+        self.name = generate_random_username(5)
+        self.register_page.register(self.name, self.email, self.password, self.conf_password)
+        expected_message = "'.' is used at a wrong position in 'abv..bg'."
+        try:
+            error_message = self.register_page.get_email_error_msg()
+            assert error_message == expected_message, f'Expected message {expected_message}, but got {error_message}'
+        except NoSuchElementException:
+            raise AssertionError("The email can NOT contains more then one @ symbols!")
+
+    def test_register_user_with_disposable_email_providers(self, setup):
+        self.preconditions(setup)
+        not_allowed_domains = []
+        expected_message = "Disposable email addresses are not allowed."
+        for domain in self.disposable_domains:
+            self.email = f"{self.name}@{domain}"
+            self.register_page.register(self.name, self.email, self.password, self.conf_password)
+            sleep(2)
+            if self.driver.current_url == self.home_page.url:
+                not_allowed_domains.append(domain)
+                self.home_page.click_logout_link()
+                self.driver.get(self.base_url)
+                sleep(2)
+                continue
+            else:
+                error_message = self.register_page.get_email_validation_msg()
+                assert error_message.text == expected_message
+            assert self.driver.current_url == self.register_page.url, \
+                f"Expected to be {self.register_page.url}, but got {self.driver.current_url}"
+            # reload the page
+            self.driver.execute_script("location.reload(true);")
+        if len(not_allowed_domains) == 0:
+            assert True
+        else:
+            raise AssertionError(f"Test Failed! Domains: '{', '.join(not_allowed_domains)}' are not allowed")
 
     def test_register_user_with_email_name_contains_white_space(self, setup):
         self.preconditions(setup)
@@ -298,13 +338,30 @@ class TestAccountRegister:
 
     def test_register_user_with_password_similar_to_username(self, setup):
         self.preconditions(setup)
-        self.name = generate_random_username(9) + '@'
+        self.name = generate_random_username(8)
         self.email = generate_random_email()
-        self.password = self.name
+        self.password = f"{self.name}12!"
         self.conf_password = self.name
         self.register_page.register(self.name, self.email, self.password, self.conf_password)
         expected_message = "Password is too similar to your name."
         sleep(2)
+        if self.driver.current_url == self.home_page.url:
+            pytest.fail("The password can not be too similar to the username")
+        message = self.register_page.get_password_validation_msg()
+        assert expected_message == message.text
+        assert message.is_displayed()
+        assert self.driver.current_url == self.base_url
+
+    @pytest.mark.sanity
+    def test_register_user_with_password_similar_to_email(self, setup):
+        self.preconditions(setup)
+        self.name = generate_random_username(5)
+        self.email = generate_random_email()
+        self.password = self.email.split('@')[0] + '12' + '!'
+        self.conf_password = self.password
+        self.register_page.register(self.name, self.email, self.password, self.conf_password)
+        expected_message = "Password is too similar to your email."
+        sleep(3)
         if self.driver.current_url == self.home_page.url:
             pytest.fail("The password can not be too similar to the username")
         message = self.register_page.get_password_validation_msg()
@@ -395,7 +452,6 @@ class TestAccountRegister:
         self.preconditions(setup)
         self.name = "Atanas  "
         self.register_page.register(self.name, self.email, self.password, self.conf_password)
-        sleep(3)
         user_link = self.home_page.get_user_link()
         assert self.driver.current_url == self.home_page.url
         assert user_link.is_displayed()

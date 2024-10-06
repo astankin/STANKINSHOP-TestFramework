@@ -12,7 +12,9 @@ class HomePage:
         self.driver = driver
 
     def get_user_link(self):
-        return self.driver.find_element(By.XPATH, self.link_user_xpath)
+        return WebDriverWait(self.driver, 10).until(
+            EC.visibility_of_element_located((By.XPATH, self.link_user_xpath))
+        )
 
     def click_user_link(self):
         user_link = self.get_user_link()
