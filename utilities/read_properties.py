@@ -31,6 +31,11 @@ class ReadConfig:
         chars = config.get('commonInfo', 'chars').split(', ')
         return chars
 
+    @staticmethod
+    def get_common_passwords_list():
+        common_passwords = config.get('commonInfo', 'common_passwords').split(', ')
+        return common_passwords
+
 
 
 
