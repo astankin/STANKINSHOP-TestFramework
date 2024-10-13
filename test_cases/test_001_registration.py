@@ -352,7 +352,6 @@ class TestAccountRegister:
         assert message.is_displayed()
         assert self.driver.current_url == self.base_url
 
-    @pytest.mark.sanity
     def test_register_user_with_password_similar_to_email(self, setup):
         self.preconditions(setup)
         self.name = generate_random_username(5)
