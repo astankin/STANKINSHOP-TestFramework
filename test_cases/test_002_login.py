@@ -17,10 +17,10 @@ class TestLogin:
     login_url = LoginPage.url
     logger = setup_logger(log_file_path='logs/register_account.log')
 
-    # login_email = ReadConfig.get_email()
-    # login_password = ReadConfig.get_password()
-    login_email = "martin@mail.com"
-    login_password = "Astankin83@"
+    login_email = ReadConfig.get_email()
+    login_password = ReadConfig.get_password()
+    # login_email = "martin@mail.com"
+    # login_password = "Astankin83@"
     login_name = 'MARTIN EDITED'
     invalid_username = "username"
     invalid_password = "Password12"
