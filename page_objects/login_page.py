@@ -1,3 +1,4 @@
+from selenium.common import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -36,4 +37,12 @@ class LoginPage:
 
     def get_error_message(self):
         return self.driver.find_element(By.XPATH, self.login_error_msg)
+
+    def get_email_error_msg(self):
+        try:
+            message = WebDriverWait(self.driver, 10).until(
+                EC.visibility_of_element_located((By.XPATH, self.email_field_xpath))).get_attribute("validationMessage")
+            return message
+        except NoSuchElementException as e:
+            raise AssertionError(f"{e}")
 
