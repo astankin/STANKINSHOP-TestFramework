@@ -19,9 +19,7 @@ class TestLogin:
 
     login_email = ReadConfig.get_email()
     login_password = ReadConfig.get_password()
-    # login_email = "martin@mail.com"
-    # login_password = "Astankin83@"
-    login_name = 'MARTIN EDITED'
+    login_name = ReadConfig.get_name()
     invalid_username = "username"
     invalid_password = "Password12"
 
@@ -135,7 +133,6 @@ class TestLogin:
         self.login_page.set_password("")
         self.login_page.click_signin()
         expected_message = "Request failed with status code 400"
-
         try:
             # Verify the validation message
             message = self.login_page.get_error_message()
