@@ -1,6 +1,5 @@
 import os
 from time import sleep
-
 import pytest
 from page_objects.home_page import HomePage
 from page_objects.login_page import LoginPage
@@ -11,7 +10,7 @@ from utilities.read_properties import ReadConfig
 
 class TestEditProfile:
     base_url = ProfilePage.url
-    logger = setup_logger(log_file_path='logs/register_account.log')
+    logger = setup_logger(log_file_path='logs/edit_user_profile.log')
 
     login_email = ReadConfig.get_email()
     login_password = ReadConfig.get_password()
