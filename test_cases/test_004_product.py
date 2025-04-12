@@ -35,7 +35,7 @@ class TestProduct:
         self.driver.get(self.base_url)
 
 
-    def test_add_rating(self, setup, preconditions):
+    def test_add_rating(self, preconditions):
         self.product_page.select_rating_option(self.option)
         self.product_page.insert_comment(self.comment)
         sleep(3)
@@ -48,7 +48,7 @@ class TestProduct:
         else:
             pytest.fail(f"Test failed: Expected {13} stars, but found {len(rating)}.")
 
-    def test_review_product_already_reviewed(self, setup, preconditions):
+    def test_review_product_already_reviewed(self, preconditions):
         self.product_page.select_rating_option(self.option)
         self.product_page.insert_comment(self.comment)
         sleep(3)

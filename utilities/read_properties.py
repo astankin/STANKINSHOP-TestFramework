@@ -10,6 +10,11 @@ config = configparser.RawConfigParser()
 config.read(config_path)
 
 class ReadConfig:
+     
+    @staticmethod
+    def get_data(data):
+         return config.get('commonInfo', data)
+
     @staticmethod
     def get_application_url():
         url = config.get('commonInfo', 'base_url')
@@ -29,6 +34,16 @@ class ReadConfig:
     def get_name():
         name = config.get('commonInfo', 'name')
         return name
+
+    @staticmethod
+    def get_admin_email():
+        admin_email = config.get('commonInfo', 'admin_email')
+        return admin_email
+
+    @staticmethod
+    def get_admin_password():
+        admin_password = config.get('commonInfo', 'admin_password')
+        return admin_password
 
     @staticmethod
     def get_chars_list():

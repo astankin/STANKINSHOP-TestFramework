@@ -18,7 +18,7 @@ from utilities.username_generator import generate_random_username
 class TestAccountRegister:
     base_url = RegisterPage.url
     logger = setup_logger(log_file_path='logs/register_account.log')
-    login_name = ReadConfig.get_name()
+    login_name = ReadConfig.get_data('name')
     login_email = ReadConfig.get_email()
     login_password = ReadConfig.get_password()
     name = generate_random_username(5)

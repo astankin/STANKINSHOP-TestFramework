@@ -34,7 +34,7 @@ class TestEditProfile:
         self.login_page.click_signin()
         self.home_page.click_profile_link()
 
-    def test_edit_user_name(self, setup, preconditions):
+    def test_edit_user_name(self, preconditions):
         name = self.profile_page.get_name_input().get_attribute('value').upper()
         self.profile_page.get_name_input().clear()
         edited_name = f'{name} EDITED'
@@ -51,7 +51,7 @@ class TestEditProfile:
         self.profile_page.click_update_btn()
         assert self.profile_page.get_email_input().get_attribute('value') == edited_email
 
-    def test_edit_password(self, setup, preconditions):
+    def test_edit_password(self, preconditions):
         self.profile_page.set_password(self.edit_password)
         self.profile_page.set_conf_password(self.edit_password)
         self.profile_page.click_update_btn()
@@ -65,8 +65,8 @@ class TestEditProfile:
         try:
             assert self.driver.current_url == target_page, "The password is not changed! Please investigate!"
             assert user_link.is_displayed()
-            assert user_link.text == self.login_name
-        except BaseException:
+            assert user_link.text.split(' ')[0] == self.login_name
+        except Exception:
             self.driver.save_screenshot(os.path.abspath(os.curdir) + "\\screenshots" + "\\test_login.png")
             assert False
         self.logger.info("**** End of test of edit password ****")

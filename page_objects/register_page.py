@@ -24,14 +24,20 @@ class RegisterPage:
 
     def __init__(self, driver):
         self.driver = driver
+        self.driver.implicitly_wait(5)  # Set global implicit wait
+
+    def wait_for_element(self, by, locator, timeout=10):
+        return WebDriverWait(self.driver, timeout).until(
+            EC.visibility_of_element_located((by, locator)))
+
 
     def get_name_input(self):
-        return WebDriverWait(self.driver, 10).until(
-            EC.visibility_of_element_located((By.ID, self.name_input_id)))
+        return self.driver.find_element(By.ID, self.name_input_id)
+        # return WebDriverWait(self.driver, 10).until(
+        #     EC.visibility_of_element_located((By.ID, self.name_input_id)))
 
     def get_email_input(self):
-        return WebDriverWait(self.driver, 10).until(
-            EC.visibility_of_element_located((By.ID, self.email_input_id)))
+        return self.wait_for_element(By.ID, self.email_input_id)
 
     def get_password_input(self):
         return WebDriverWait(self.driver, 10).until(
